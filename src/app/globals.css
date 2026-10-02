@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --brand-cobalt: #002eb4;
+  --brand-cobalt-dark: #001f7c;
+  --brand-cobalt-soft: #f0f3ff;
+  --brand-orange: #f77f00;
+  --brand-orange-hover: #e06c00;
+  --brand-orange-soft: #fff7ed;
+}
+
+/* Force Light Mode Always */
+html, body {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  scroll-behavior: smooth;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Animation Classes */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(0.5deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+/* Glassmorphism Medical Cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-card-hover:hover {
+  background: #ffffff;
+  box-shadow: 0 15px 30px -8px rgba(0, 46, 180, 0.15), 0 6px 12px -4px rgba(247, 127, 0, 0.1);
+  border-color: rgba(247, 127, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.gradient-cobalt-text {
+  background: linear-gradient(135deg, #002eb4 0%, #001f7c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-orange-text {
+  background: linear-gradient(135deg, #f77f00 0%, #ff6a00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Brand Buttons */
+.btn-orange {
+  background-color: #f77f00;
+  color: #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+.btn-orange:hover {
+  background-color: #e06c00;
+  box-shadow: 0 4px 14px rgba(247, 127, 0, 0.35);
+}
+
+.btn-cobalt {
+  background-color: #002eb4;
+  color: #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+.btn-cobalt:hover {
+  background-color: #001f7c;
+  box-shadow: 0 4px 14px rgba(0, 46, 180, 0.35);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f77f00;
+}
+
+
+

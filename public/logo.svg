@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" width="520" height="140" fill="none">
+  <!-- DNA Double Helix Vector Icon in Orange -->
+  <g transform="translate(10, 15)">
+    <!-- DNA Strand 1 (Orange Gradient) -->
+    <path d="M 15,85 C 35,25 65,25 85,85 C 105,145 135,145 155,85" stroke="url(#orangeGrad)" stroke-width="12" stroke-linecap="round" fill="none" />
+    
+    <!-- DNA Strand 2 (Secondary Ribbon) -->
+    <path d="M 15,35 C 35,95 65,95 85,35 C 105,-25 135,-25 155,35" stroke="url(#orangeGrad2)" stroke-width="10" stroke-linecap="round" fill="none" />
+    
+    <!-- Connecting DNA Rungs -->
+    <line x1="38" y1="52" x2="38" y2="68" stroke="#EF7D00" stroke-width="5" stroke-linecap="round" />
+    <line x1="62" y1="42" x2="62" y2="78" stroke="#F97316" stroke-width="5" stroke-linecap="round" />
+    <line x1="85" y1="55" x2="85" y2="65" stroke="#EF7D00" stroke-width="6" stroke-linecap="round" />
+    <line x1="108" y1="42" x2="108" y2="78" stroke="#F97316" stroke-width="5" stroke-linecap="round" />
+    <line x1="132" y1="52" x2="132" y2="68" stroke="#EF7D00" stroke-width="5" stroke-linecap="round" />
+  </g>
+
+  <!-- Brand Typography: LabXpert -->
+  <text x="175" y="78" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="64" letter-spacing="-1">
+    <tspan fill="#2B358F">Lab</tspan><tspan fill="#3543B5">X</tspan><tspan fill="#2B358F">pert</tspan>
+  </text>
+
+  <!-- Subtitle Typography: ADVANCED ANDROLOGY & PATHOLOGY -->
+  <text x="178" y="108" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="16" fill="#334155" letter-spacing="3.5">
+    ADVANCED ANDROLOGY &amp; PATHOLOGY
+  </text>
+
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F97316" />
+      <stop offset="100%" stop-color="#EF7D00" />
+    </linearGradient>
+    <linearGradient id="orangeGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C" />
+      <stop offset="100%" stop-color="#F97316" />
+    </linearGradient>
+  </defs>
+</svg>
