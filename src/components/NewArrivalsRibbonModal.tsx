@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, 
@@ -13,8 +13,6 @@ import {
   Zap, 
   Microscope, 
   Flame, 
-  Award,
-  ExternalLink,
   PhoneCall
 } from "lucide-react";
 import Link from "next/link";
@@ -138,13 +136,25 @@ export default function NewArrivalsRibbonModal() {
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
   const [justClosedAnimation, setJustClosedAnimation] = useState(false);
-  const [hasAutoOpened, setHasAutoOpened] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Touch gesture state for mobile swiping
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Screen size detection
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
 
   // Auto-open modal on page load after a pleasant brief delay
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsOpen(true);
-      setHasAutoOpened(true);
     }, 750);
 
     return () => clearTimeout(timer);
@@ -191,7 +201,6 @@ export default function NewArrivalsRibbonModal() {
 
   const handleClose = () => {
     setIsOpen(false);
-    // Trigger the vibrant indicator on the ribbon so user sees it "tucked into the ribbon"
     setJustClosedAnimation(true);
     setTimeout(() => {
       setJustClosedAnimation(false);
@@ -200,6 +209,32 @@ export default function NewArrivalsRibbonModal() {
 
   const handleOpenFromRibbon = () => {
     setIsOpen(true);
+  };
+
+  // Touch handlers for fluid swipe on mobile (like Instagram / TikTok / Native App)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsPaused(true);
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsPaused(false);
+    if (!touchStartRef.current) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
+    const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
+    touchStartRef.current = null;
+
+    // Dominant horizontal swipe with min 40px threshold
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+      if (deltaX < 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+    }
   };
 
   const product = newArrivalsList[currentSlide];
@@ -211,22 +246,23 @@ export default function NewArrivalsRibbonModal() {
       {/* ============================================================ */}
       <aside 
         aria-label="New Arrivals Quick Access"
-        className="fixed top-28 sm:top-32 right-0 z-[60] select-none group"
+        className="fixed top-24 sm:top-28 lg:top-32 right-0 z-[60] select-none group"
       >
         <button
           onClick={handleOpenFromRibbon}
           className={`
-            relative flex items-center gap-2.5 
-            py-2.5 px-4 sm:px-5 
+            relative flex items-center gap-1.5 sm:gap-2.5 
+            py-2 sm:py-2.5 px-3 sm:px-5 
             rounded-l-2xl 
             bg-gradient-to-r from-[#002eb4] via-[#1a3ecb] to-[#f77f00]
-            text-white font-bold text-xs sm:text-sm tracking-wider uppercase
+            text-white font-bold text-[11px] sm:text-xs md:text-sm tracking-wider uppercase
             shadow-[0_10px_25px_-5px_rgba(0,46,180,0.4),0_8px_10px_-6px_rgba(247,127,0,0.3)]
             border-l-2 border-t-2 border-b-2 border-white/40
             transition-all duration-300 transform 
-            hover:-translate-x-2 hover:shadow-[0_15px_30px_-5px_rgba(247,127,0,0.5)]
+            hover:-translate-x-1.5 sm:hover:-translate-x-2 
+            hover:shadow-[0_15px_30px_-5px_rgba(247,127,0,0.5)]
             active:scale-95
-            ${justClosedAnimation ? "ring-4 ring-orange-400 ring-offset-2 scale-110 animate-bounce" : ""}
+            ${justClosedAnimation ? "ring-4 ring-orange-400 ring-offset-2 scale-105 sm:scale-110 animate-bounce" : ""}
           `}
           style={{
             boxShadow: justClosedAnimation 
@@ -244,29 +280,29 @@ export default function NewArrivalsRibbonModal() {
           <div className="absolute -bottom-2 right-0 w-2 h-2 bg-[#001b6b] [clip-path:polygon(0_0,100%_0,100%_100%)] pointer-events-none" />
 
           {/* Glowing dot & Sparkle Icon */}
-          <div className="relative flex items-center justify-center">
-            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+          <div className="relative flex items-center justify-center shrink-0">
+            <span className="absolute -top-1 -right-1 flex h-2 w-2 sm:h-2.5 sm:w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-300" />
+              <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-amber-300" />
             </span>
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300 animate-pulse" />
           </div>
 
           {/* Text Content */}
           <div className="flex flex-col text-left leading-none">
-            <span className="text-[10px] text-amber-200 font-extrabold tracking-widest flex items-center gap-1">
-              {justClosedAnimation ? "SAVED HERE" : "JUST ARRIVED"}
+            <span className="text-[9px] sm:text-[10px] text-amber-200 font-extrabold tracking-widest flex items-center gap-1">
+              {justClosedAnimation ? "SAVED HERE" : "NEW"}
             </span>
-            <span className="font-black text-white text-xs sm:text-sm drop-shadow-sm flex items-center gap-1">
-              New Arrivals
-              <span className="bg-white/20 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black">
+            <span className="font-black text-white text-[11px] sm:text-xs md:text-sm drop-shadow-sm flex items-center gap-1 whitespace-nowrap">
+              Arrivals
+              <span className="bg-white/25 text-white text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-full font-black">
                 {newArrivalsList.length}
               </span>
             </span>
           </div>
 
-          {/* Little arrow hint */}
-          <ChevronLeft className="w-4 h-4 text-white/90 group-hover:-translate-x-0.5 transition-transform" />
+          {/* Arrow hint */}
+          <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/90 group-hover:-translate-x-0.5 transition-transform shrink-0" />
 
           {/* Pulse Ripple when collapsed into ribbon */}
           {justClosedAnimation && (
@@ -276,105 +312,114 @@ export default function NewArrivalsRibbonModal() {
       </aside>
 
       {/* ============================================================ */}
-      {/* 2. NEW ARRIVALS CAROUSEL MODAL (POPS UP ON LOAD & RIBBON CLICK) */}
+      {/* 2. NEW ARRIVALS CAROUSEL MODAL (NATIVE APP BOTTOM SHEET ON MOBILE) */}
       {/* ============================================================ */}
       <AnimatePresence>
         {isOpen && (
           <div 
-            className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-slate-950/75 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 lg:p-8 bg-slate-950/80 backdrop-blur-md overflow-hidden sm:overflow-y-auto"
             onClick={(e) => {
               if (e.target === e.currentTarget) handleClose();
             }}
           >
-            {/* Modal Card with spring animation folding to/from ribbon */}
+            {/* Modal Card: Native App Bottom Sheet on Mobile, Centered Modal on Tablet/Desktop */}
             <motion.div
-              initial={{ 
-                opacity: 0, 
-                scale: 0.15, 
-                x: 320, 
-                y: -220 
-              }}
-              animate={{ 
-                opacity: 1, 
-                scale: 1, 
-                x: 0, 
-                y: 0 
-              }}
-              exit={{ 
-                opacity: 0, 
-                scale: 0.15, 
-                x: 340, 
-                y: -220,
-                transition: { duration: 0.35, ease: [0.32, 0.72, 0, 1] }
-              }}
+              initial={
+                isMobile
+                  ? { y: "100%", opacity: 0 }
+                  : { opacity: 0, scale: 0.15, x: 320, y: -220 }
+              }
+              animate={
+                isMobile
+                  ? { y: 0, opacity: 1 }
+                  : { opacity: 1, scale: 1, x: 0, y: 0 }
+              }
+              exit={
+                isMobile
+                  ? { y: "100%", opacity: 0, transition: { duration: 0.28, ease: "easeIn" } }
+                  : { opacity: 0, scale: 0.15, x: 340, y: -220, transition: { duration: 0.35, ease: [0.32, 0.72, 0, 1] } }
+              }
               transition={{ 
                 type: "spring", 
-                damping: 26, 
-                stiffness: 280 
+                damping: isMobile ? 28 : 26, 
+                stiffness: isMobile ? 260 : 280 
               }}
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
-              className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-100 relative overflow-hidden my-auto max-h-[92vh] flex flex-col"
+              className="bg-white rounded-t-[2.25rem] sm:rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-100 relative overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[90vh] my-0 sm:my-auto"
             >
+              {/* Mobile Drag Handle Bar (Native Mobile App Style) */}
+              <div 
+                onClick={handleClose}
+                className="w-full pt-2.5 pb-1 flex justify-center sm:hidden cursor-pointer"
+                title="Tap or drag to close"
+              >
+                <div className="w-12 h-1.5 bg-slate-300 rounded-full" />
+              </div>
+
               {/* Top Gradient Ribbon Accent */}
-              <div className="h-2 w-full bg-gradient-to-r from-[#002eb4] via-[#f77f00] to-[#002eb4]" />
+              <div className="h-1.5 sm:h-2 w-full bg-gradient-to-r from-[#002eb4] via-[#f77f00] to-[#002eb4]" />
 
               {/* MODAL HEADER */}
-              <div className="px-5 sm:px-7 pt-4 pb-3 flex items-center justify-between border-b border-slate-100 bg-slate-50/80">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-orange-100 text-[#f77f00] shadow-sm">
-                    <Sparkles className="w-5 h-5" />
+              <div className="px-4 sm:px-7 pt-3 pb-2.5 sm:py-3.5 flex items-center justify-between border-b border-slate-100 bg-slate-50/90 shrink-0">
+                <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                  <div className="p-1.5 sm:p-2 rounded-xl bg-orange-100 text-[#f77f00] shadow-sm shrink-0">
+                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-[#002eb4] uppercase tracking-wider">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="text-[10px] sm:text-xs font-black text-[#002eb4] uppercase tracking-wider truncate">
                         LabXpert Showcase
                       </span>
-                      <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                      <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs shrink-0">
                         New Arrivals
                       </span>
                     </div>
-                    <h2 className="text-lg sm:text-xl font-black text-slate-900 leading-tight">
-                      Latest Laboratory & Andrology Diagnostic Systems
+                    <h2 className="text-sm sm:text-lg font-black text-slate-900 leading-snug truncate">
+                      Latest Laboratory Innovations
                     </h2>
                   </div>
                 </div>
 
                 {/* Right: Slide counter + Close Button */}
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs font-bold text-slate-500 bg-slate-200/70 px-2.5 py-1 rounded-full hidden sm:inline-block">
-                    {currentSlide + 1} of {newArrivalsList.length}
+                <div className="flex items-center gap-2 shrink-0 ml-2">
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-600 bg-slate-200/80 px-2 sm:px-2.5 py-1 rounded-full whitespace-nowrap">
+                    {currentSlide + 1} / {newArrivalsList.length}
                   </span>
 
                   <button
                     onClick={handleClose}
-                    className="group relative flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-200/80 hover:bg-orange-500 text-slate-700 hover:text-white transition-all shadow-xs"
-                    aria-label="Close to ribbon"
-                    title="Close and tuck into top-right ribbon"
+                    className="flex items-center gap-1 p-1.5 sm:px-3 sm:py-1.5 rounded-full bg-slate-200/80 hover:bg-orange-500 text-slate-700 hover:text-white transition-all shadow-xs active:scale-90"
+                    aria-label="Close"
+                    title="Close"
                   >
-                    <span className="text-xs font-bold hidden sm:inline group-hover:text-white transition-colors">
-                      Close to Ribbon
+                    <span className="text-xs font-bold hidden md:inline transition-colors">
+                      Close
                     </span>
-                    <X className="w-4 h-4 sm:w-4 sm:h-4 group-hover:rotate-90 transition-transform duration-300" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              {/* MODAL BODY: INTERACTIVE CAROUSEL CONTENT */}
-              <div className="p-5 sm:p-7 overflow-y-auto flex-1">
+              {/* MODAL BODY: TOUCH-ENABLED INTERACTIVE CAROUSEL CONTENT */}
+              <div 
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                className="p-4 sm:p-6 md:p-7 overflow-y-auto overscroll-contain flex-1"
+              >
                 <div className="relative">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={product.id}
-                      initial={{ opacity: 0, x: direction > 0 ? 40 : -40 }}
+                      initial={{ opacity: 0, x: direction > 0 ? 35 : -35 }}
                       animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: direction > 0 ? -40 : 40 }}
-                      transition={{ duration: 0.3 }}
-                      className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center"
+                      exit={{ opacity: 0, x: direction > 0 ? -35 : 35 }}
+                      transition={{ duration: 0.25 }}
+                      className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-center"
                     >
                       {/* PRODUCT IMAGE & BADGES (5 cols) */}
                       <div className="md:col-span-5 relative">
-                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-md group aspect-[4/3] sm:aspect-square md:aspect-[4/3] max-h-72">
+                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-md group h-44 sm:h-56 md:h-64 w-full">
                           <img
                             src={product.image}
                             alt={product.name}
@@ -382,99 +427,104 @@ export default function NewArrivalsRibbonModal() {
                           />
 
                           {/* Top Left Ribbon Tag on Image */}
-                          <div className="absolute top-3 left-3 bg-[#f77f00] text-white text-xs font-black px-3 py-1 rounded-lg shadow-md flex items-center gap-1.5 uppercase tracking-wide">
-                            <Flame className="w-3.5 h-3.5 fill-white text-white" />
+                          <div className="absolute top-2.5 left-2.5 bg-[#f77f00] text-white text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg shadow-md flex items-center gap-1 uppercase tracking-wide">
+                            <Flame className="w-3 h-3 fill-white text-white" />
                             {product.badge}
                           </div>
 
+                          {/* Mobile Swipe Hint Pill */}
+                          <div className="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full sm:hidden flex items-center gap-1">
+                            Swipe ⇄
+                          </div>
+
                           {/* Bottom Stats Overlay */}
-                          <div className="absolute bottom-3 inset-x-3 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between text-xs">
+                          <div className="absolute bottom-2.5 inset-x-2.5 bg-white/95 backdrop-blur-md px-3 py-1.5 sm:py-2 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between text-[11px] sm:text-xs">
                             <span className="text-slate-500 font-medium">Throughput:</span>
                             <span className="font-extrabold text-[#002eb4]">{product.throughput}</span>
                           </div>
                         </div>
 
                         {/* Secondary verification chip */}
-                        <div className="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 px-1">
+                        <div className="mt-2 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500 px-1">
                           <span className="flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> ISO 13485 & CE Ready
+                            <ShieldCheck className="w-3 h-3 text-emerald-600" /> ISO 13485 Verified
                           </span>
-                          <span className="text-slate-400 font-medium">Lab-Grade Precision</span>
+                          <span className="text-slate-400 font-medium">{product.accuracy}</span>
                         </div>
                       </div>
 
                       {/* PRODUCT DETAILS (7 cols) */}
-                      <div className="md:col-span-7 space-y-4">
+                      <div className="md:col-span-7 space-y-3 sm:space-y-4">
                         {/* Category & Status */}
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="bg-[#002eb4] text-white text-[11px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <span className="bg-[#002eb4] text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                             {product.category}
                           </span>
-                          <span className="bg-orange-50 text-[#f77f00] text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-orange-200 flex items-center gap-1">
-                            <Zap className="w-3 h-3 text-[#f77f00]" /> Just Added to Fleet
+                          <span className="bg-orange-50 text-[#f77f00] text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full border border-orange-200 flex items-center gap-1">
+                            <Zap className="w-3 h-3 text-[#f77f00]" /> Just Added
                           </span>
                         </div>
 
                         {/* Title & Tagline */}
                         <div>
-                          <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+                          <h3 className="text-base sm:text-xl md:text-2xl font-black text-slate-900 leading-tight">
                             {product.name}
                           </h3>
-                          <p className="text-xs font-bold text-[#002eb4] mt-1">
+                          <p className="text-[11px] sm:text-xs font-bold text-[#002eb4] mt-0.5">
                             {product.tagline}
                           </p>
                         </div>
 
                         {/* Description */}
-                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3 sm:line-clamp-none">
                           {product.description}
                         </p>
 
-                        {/* Technical Specifications Matrix */}
-                        <div className="space-y-1.5 pt-1">
-                          <span className="text-[11px] font-extrabold uppercase text-slate-400 tracking-wider flex items-center gap-1">
-                            <Microscope className="w-3.5 h-3.5 text-[#f77f00]" /> Technical Specifications
+                        {/* Technical Specifications Matrix (2x2 Grid) */}
+                        <div className="space-y-1 pt-0.5">
+                          <span className="text-[10px] sm:text-[11px] font-extrabold uppercase text-slate-400 tracking-wider flex items-center gap-1">
+                            <Microscope className="w-3 h-3 text-[#f77f00]" /> Specifications
                           </span>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
                             {product.specs.map((s, idx) => (
                               <div 
                                 key={idx} 
-                                className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/70 flex flex-col"
+                                className="bg-slate-50 px-2.5 py-1.5 sm:py-2 rounded-xl border border-slate-200/70 flex flex-col"
                               >
-                                <span className="text-[10px] text-slate-400 font-medium">{s.label}</span>
-                                <span className="font-bold text-slate-800 text-[11px] truncate">{s.value}</span>
+                                <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium">{s.label}</span>
+                                <span className="font-bold text-slate-800 text-[10px] sm:text-[11px] truncate">{s.value}</span>
                               </div>
                             ))}
                           </div>
                         </div>
 
                         {/* Feature Badges */}
-                        <div className="flex flex-wrap gap-1.5 pt-1">
+                        <div className="flex flex-wrap gap-1 sm:gap-1.5 pt-0.5">
                           {product.features.map((feat, idx) => (
                             <span 
                               key={idx} 
-                              className="text-[11px] bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1"
+                              className="text-[10px] sm:text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 sm:py-1 rounded-lg font-semibold flex items-center gap-1"
                             >
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> {feat}
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" /> {feat}
                             </span>
                           ))}
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100">
+                        {/* Action Buttons (Thumb Friendly) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100">
                           <Link
                             href="/get-in-touch"
                             onClick={handleClose}
-                            className="flex-1 min-w-[170px] py-2.5 px-4 bg-gradient-to-r from-[#002eb4] to-[#f77f00] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition text-center flex items-center justify-center gap-2 group"
+                            className="py-3 px-4 bg-gradient-to-r from-[#002eb4] to-[#f77f00] text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition text-center flex items-center justify-center gap-2 group active:scale-95"
                           >
                             <PhoneCall className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                            Request Official Quotation
+                            Request Official Quote
                           </Link>
 
                           <Link
                             href={product.link}
                             onClick={handleClose}
-                            className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm rounded-xl transition flex items-center gap-1.5"
+                            className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-1.5 active:scale-95 text-center"
                           >
                             <span>Explore Catalog</span>
                             <ArrowRight className="w-3.5 h-3.5" />
@@ -486,14 +536,14 @@ export default function NewArrivalsRibbonModal() {
                 </div>
               </div>
 
-              {/* MODAL FOOTER: CAROUSEL CONTROLS & THUMBNAIL SELECTOR */}
-              <div className="p-4 sm:px-7 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* MODAL FOOTER: APP-STYLE CONTROLS & THUMBNAILS */}
+              <div className="p-3 sm:px-7 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 shrink-0">
                 {/* Previous / Next Arrows */}
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <button
                       onClick={handlePrev}
-                      className="p-2 sm:p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-orange-50 hover:border-orange-300 text-slate-700 hover:text-[#f77f00] shadow-xs transition active:scale-95"
+                      className="p-2 sm:p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-orange-50 hover:border-orange-300 text-slate-700 hover:text-[#f77f00] shadow-xs transition active:scale-90"
                       aria-label="Previous product"
                       title="Previous Product"
                     >
@@ -501,24 +551,25 @@ export default function NewArrivalsRibbonModal() {
                     </button>
                     <button
                       onClick={handleNext}
-                      className="p-2 sm:p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-orange-50 hover:border-orange-300 text-slate-700 hover:text-[#f77f00] shadow-xs transition active:scale-95"
+                      className="p-2 sm:p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-orange-50 hover:border-orange-300 text-slate-700 hover:text-[#f77f00] shadow-xs transition active:scale-90"
                       aria-label="Next product"
                       title="Next Product"
                     >
                       <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
-                    <span className="text-xs text-slate-500 font-medium ml-1">
+                    <span className="text-[11px] sm:text-xs text-slate-500 font-medium ml-1">
                       {currentSlide + 1} / {newArrivalsList.length}
                     </span>
                   </div>
 
-                  <span className="text-[11px] text-slate-400 italic sm:hidden">
-                    Swipe or tap thumbnail
+                  {/* Mobile swipe helper text */}
+                  <span className="text-[10px] text-slate-400 font-medium sm:hidden">
+                    👈 Swipe cards 👉
                   </span>
                 </div>
 
-                {/* Mini Thumbnails / Dots strip */}
-                <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 sm:pb-0">
+                {/* Horizontal Scrollable Thumbnails / Dots strip */}
+                <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-0.5 sm:pb-0 w-full sm:w-auto justify-start sm:justify-end">
                   {newArrivalsList.map((item, idx) => (
                     <button
                       key={item.id}
@@ -527,15 +578,15 @@ export default function NewArrivalsRibbonModal() {
                         setCurrentSlide(idx);
                       }}
                       className={`
-                        relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all
+                        relative flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 active:scale-95
                         ${currentSlide === idx 
                           ? "bg-[#002eb4] text-white shadow-sm ring-2 ring-orange-400" 
                           : "bg-white text-slate-600 hover:bg-slate-200/80 border border-slate-200"
                         }
                       `}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${currentSlide === idx ? "bg-orange-400 animate-pulse" : "bg-slate-400"}`} />
-                      <span className="truncate max-w-[80px] sm:max-w-[100px] text-[11px]">
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${currentSlide === idx ? "bg-orange-400 animate-pulse" : "bg-slate-400"}`} />
+                      <span className="truncate max-w-[70px] sm:max-w-[90px] text-[10px] sm:text-[11px]">
                         {item.name.split(" ")[0]}
                       </span>
                     </button>
