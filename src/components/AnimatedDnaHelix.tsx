@@ -275,8 +275,8 @@ export default function AnimatedDnaHelix({
   return (
     <div
       ref={containerRef}
-      onMouseEnter={() => interactive && setIsHovered(true)}
-      onMouseLeave={() => interactive && setIsHovered(false)}
+      onMouseEnter={() => interactive && setInternalHovered(true)}
+      onMouseLeave={() => interactive && setInternalHovered(false)}
       className={`relative select-none pointer-events-auto ${className}`}
       style={{
         width: width ? `${width}px` : "100%",
